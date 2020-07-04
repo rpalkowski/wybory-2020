@@ -87,6 +87,24 @@ frekwencja_mapa <- ggplot() +
 ggsave(frekwencja_mapa, file = "frekwencja_mapa_obwody.png", width=20, height=20, dpi=300)  
 
 
+# głosy ważne i nieważne --------------------------------------------------
+
+glosy <- dane[, c(3, 25, 29, 33, 27)] %>% 
+  set_names("TERYT", "glosy_oddane", "glosy_niewazne", "glosy_wazne", "karty_niewazne") %>% 
+  group_by(TERYT) %>% 
+  summarise(glosy_oddane = sum(glosy_oddane),
+            glosy_niewazne = sum(glosy_niewazne), 
+            glosy_wazne = sum(glosy_wazne), 
+            karty_niewazne = sum(karty_niewazne)) %>% 
+  ungroup() %>% 
+  mutate(glosy_niewazne_proc = (glosy_niewazne / glosy_oddane)*100,
+         glosy_wazne_proc = (glosy_wazne / glosy_oddane)*100,
+         karty_niewazne_proc = (karty_niewazne / glosy_oddane)*100)
+
+# połączenie z tabelą ze współrzędnymi
+glosy_mapa <- left_join(mapa, glosy, by = "TERYT")
+
+
 # głosy nieważne  ---------------------------------------------------------
 
 glosy_niewazne <- glosy_mapa %>% 
