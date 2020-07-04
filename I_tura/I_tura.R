@@ -89,7 +89,18 @@ ggsave(frekwencja_mapa, file = "frekwencja_mapa_obwody.png", width=20, height=20
 
 # głosy nieważne  ---------------------------------------------------------
 
-niewazne <- dane[, c(3, 25, 29, 33, 27)] %>% 
-  set_names("TERYT", "glosy_oddane", "glosy_niewazne", "glosy_wazne", "karty_niewazne")
+glosy_niewazne <- glosy_mapa %>% 
+  ggplot() +
+  geom_sf(mapping = aes(fill = glosy_niewazne),  size = 0.15, color = "gray") +
+  scale_fill_distiller(palette = "PuRd", direction = 1) +
+  theme_minimal() +
+  labs(title = "Głosy nieważne w wyborach prezydenckich 2020 (I tura) na poziomie gmin",
+       subtitle = "karty_niewazne / glosy_oddane",
+       caption = "Radosław Pałkowski",
+       fill = "", color="")
+  
+
+# zapis pliku 
+ggsave(glosy_niewazne, file = "glosy_niewazne_proc.png", width=12, height=12, dpi=300)
 
 
