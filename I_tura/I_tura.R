@@ -122,3 +122,40 @@ glosy_niewazne <- glosy_mapa %>%
 ggsave(glosy_niewazne, file = "glosy_niewazne_proc.png", width=12, height=12, dpi=300)
 
 
+
+
+# zwycięzcy według gmin ---------------------------------------------------
+
+wyniki <- dane[, c(3, 33, 34:44)] %>%
+  rename(TERYT = `Kod TERYT`) %>% 
+  gather(3:13, key = "kandydat", value = "glosy") %>%
+  group_by(TERYT, kandydat) %>% 
+  summarise(glosy_na_kandydata = sum(glosy)) %>% 
+  ungroup() %>% 
+  left_join(glosy %>% select(TERYT, glosy_wazne), by = "TERYT") %>% 
+  mutate(glosy_na_kandydata_proc = (glosy_na_kandydata / glosy_wazne)*100)
+
+zwyciezcy <- left_join(mapa, 
+                       wyniki %>% 
+                         group_by(TERYT) %>% 
+                         top_n(1, glosy_na_kandydata), 
+                      by = "TERYT")
+
+
+
+mapa_zwyciezcy_gminy = zwyciezcy %>%
+  ggplot() +
+  geom_sf(aes(fill = kandydat), size = 0.1, color = "gray90") +
+  scale_fill_manual(values = c("blue4", "cyan3", "yellow")) +
+  theme_void() + 
+  theme(legend.position="bottom", legend.box = "horizontal",
+        legend.title = element_text(size = 16),
+        legend.text = element_text(size = 16),
+        plot.title = element_text(face = "bold", size = 22),
+        plot.caption = element_text(size = 12, colour = "grey70")) +
+  labs(title = "Zwycięzcy na poziomie gmin",
+       subtitle = "I tura, 28.06.2020",
+       caption = "Radosław Pałkowski \n github.com/rpalkowski",
+       fill = "", color="")
+  
+ggsave(mapa_zwyciezcy_gminy, file = "zwyciezcy_okregow.png", width=12, height=12, dpi=300)
