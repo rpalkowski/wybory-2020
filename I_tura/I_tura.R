@@ -46,27 +46,6 @@ mapa <- read_sf(plik_shp_mapa) %>%
          TERYT = if_else(str_detect(TERYT, "126105"), "126101", TERYT))
 
 
-
-# x <- read_sf(plik_shp_mapa) %>%
-#   select(TERYT = JPT_KOD_JE, JPT_NAZWA_) %>% 
-#   filter(JPT_NAZWA_ == "Podgórze")
-
-# 
-# 106104 polesie 
-# 106105 srodmiescie 
-# 06 WIDZEW
-# 02 bałuty
-# 03 górna
-
-
-
-# 126105 srodmiescie 
-# 03 nowa huta 
-# 02 krowodrza 
-# 04 podgórze 
-
-
-
 # drobne zmiany w zbiorze danych - str_sub zmienia długość kodu TERYT na równą długość dla wszystkich 
 # użycie ` ` pozwala na wybranie nazw zmiennych ze spacją  
 
@@ -106,20 +85,6 @@ frekwencja_mapa <- ggplot() +
 
 # zapis pliku 
 ggsave(frekwencja_mapa, file = "frekwencja_mapa_obwody.png", width=20, height=20, dpi=300)  
-
-
-
-
-# # mapa z samymi nazwami jednostek teryt 
-# test <- ggplot(mapa) +
-#   geom_sf(data = mapa, size = 0.1, color = "gray90", fill = "white") + 
-#   #geom_sf(data = frekwencja_do_mapy, aes(fill = frekwencja_proc),  size = 0.1, color = "gray90") +
-#   #scale_fill_distiller(palette = "Oranges", direction = 1) +
-#   geom_sf_text(aes(label = JPT_NAZWA_), colour = "black", size = 1)
-# 
-# # zapis pliku 
-# ggsave(test, file = "test.png", width=20, height=20, dpi=300)  
-
 
 
 # głosy nieważne  ---------------------------------------------------------
