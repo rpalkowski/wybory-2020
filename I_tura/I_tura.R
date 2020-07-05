@@ -54,7 +54,7 @@ dane <- dane %>%
 
 
 # frekwencja w lokalach ---------------------------------------------------
-# wyborcy uprawnieni do gł♠osowania / wydane karty do głosowania 
+# wyborcy uprawnieni do głosowania / wydane karty do głosowania 
 
 
 # nazwy i numery kolumn
@@ -69,9 +69,7 @@ frekwencja <- dane[, c(3, 13, 15)] %>%
   ungroup() %>% 
   mutate(frekwencja_proc = (wydane_karty / uprawnieni_wyborcy)*100)
 
-# c(3,13,15) - po obwodach 
-# c(2,8,10) - po gmianch 
-
+# łączenie z granicami obszarów po kodzie TERYT
 frekwencja_do_mapy <- left_join(mapa, 
                              frekwencja %>% 
                                select(TERYT, frekwencja_proc), 
