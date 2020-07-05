@@ -173,3 +173,33 @@ mapa_poparcie_proc = poparcie %>%
   facet_wrap(~kandydat)
   
 ggsave(mapa_poparcie_proc, file = "poparcie_proc.png", width=30, height=30, dpi=300)
+
+
+
+
+
+# top3 z największym poparciem ogółem 
+
+mapa_poparcie_proc_top3 = poparcie %>% 
+  filter(kandydat %in% c("Andrzej Sebastian DUDA", "Rafał Kazimierz TRZASKOWSKI", 
+                         "Szymon Franciszek HOŁOWNIA")) %>% 
+  ggplot() +
+  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray90") +
+  scale_fill_distiller(palette = "Blues", direction = 1) +
+  theme_void() + 
+  theme(legend.position="bottom", legend.box = "horizontal",
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        legend.key.size = unit(10, "points"),
+        plot.title = element_text(face = "bold", size = 15),
+        plot.caption = element_text(size = 7, colour = "grey30"), 
+        plot.margin = unit(c(0,5,0,5), "points")) +
+  labs(title = "Poparcie na poziomie gmin dla trzech kandydatów z największą liczbą głosów ogółem",
+       subtitle = "I tura, 28.06.2020",
+       caption = "Radosław Pałkowski \n github.com/rpalkowski",
+       fill = "Procent głosów") +
+  facet_wrap(~kandydat)
+
+ggsave(mapa_poparcie_proc_top3, file = "poparcie_proc_top3.png", width=12, height=6, dpi=300)
+
+
