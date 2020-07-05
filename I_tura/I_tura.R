@@ -157,3 +157,19 @@ mapa_zwyciezcy_gminy = zwyciezcy %>%
        fill = "", color="")
   
 ggsave(mapa_zwyciezcy_gminy, file = "zwyciezcy_okregow.png", width=12, height=12, dpi=300)
+
+
+# poparcie ----------------------------------------------------------------
+
+
+poparcie <- left_join(mapa, wyniki, by = "TERYT")
+
+# wszyscy kandydaci razem na jednym wykresie 
+mapa_poparcie_proc = poparcie %>% 
+  ggplot() +
+  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray90") +
+  scale_fill_distiller(palette = "Blues", direction = 1) +
+  theme_void() + 
+  facet_wrap(~kandydat)
+  
+ggsave(mapa_poparcie_proc, file = "poparcie_proc.png", width=30, height=30, dpi=300)
