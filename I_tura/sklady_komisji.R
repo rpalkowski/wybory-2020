@@ -129,10 +129,12 @@ plec <- obwody %>%
   group_by(TERYT) %>% 
   count(plec) %>% 
   ungroup() %>% 
-  spread(key = plec, value = n) %>% 
+  spread(key = plec, value = n) %>%
+  replace(is.na(.), 0) %>%  # zamiana NA na 0
   mutate(plec_przewazajaca = kobieta > mezczyzna)
 
 plec$plec_przewazajaca <- gsub("TRUE", "kobieta", plec$plec_przewazajaca)
+plec$plec_przewazajaca <- gsub("FALSE", "mężczyzna", plec$plec_przewazajaca)
 
 
 plec_mapa <- left_join(mapa, plec %>% 
