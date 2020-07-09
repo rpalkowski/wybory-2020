@@ -62,11 +62,7 @@ obwody <-  obwody %>%
 # plik shp z mapą Polski z podziałem według gmin 
 # plik "jednostki_ewidencyjne" - zawiera szczegółowy podział Warszawy na dzielnice 
 
-plik_shp_mapa <- "C:/Users/Radek/Desktop/!PROJEKTY_R/wybory2020/pliki_shp/Jednostki_ewidencyjne.shp"
-
-# plik_shp_mapa <- "./pliki_shp/Gminy.shp"
-
-# "C:/Users/Radek/Desktop/!PROJEKTY_R/wybory2020/pliki_shp/Jednostki_ewidencyjne.shp"
+plik_shp_mapa <- "./pliki_shp/Gminy.shp"
 
 # mapa Polski według gmin  ------------------------------------------------
 
