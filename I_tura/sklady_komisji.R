@@ -144,7 +144,7 @@ plec_mapa <- left_join(mapa, plec %>%
 plec_przewazajaca <- plec_mapa %>%
   ggplot() +
   geom_sf(mapping = aes(fill = plec_przewazajaca), size = 0.1, color = "gray95") + 
-  scale_fill_manual(values = c("royalblue3", "orchid1")) + 
+  scale_fill_manual(values = c("orchid1", "royalblue3")) + 
   theme_void() + 
   theme(legend.position = "bottom", legend.direction = "horizontal",
         legend.title = element_blank(),
