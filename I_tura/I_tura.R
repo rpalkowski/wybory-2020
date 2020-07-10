@@ -13,14 +13,15 @@ library(stringr)
 
 # ładowanie danych  -------------------------------------------------------
 
-dane <- read_csv2("./I_tura/wyniki_gl_na_kand_po_obwodach_utf8.csv")
+dane <- read_csv2("wyniki_gl_na_kand_po_obwodach_utf8.csv")
 
 # plik shp z mapą Polski z podziałem według gmin 
 # plik "jednostki_ewidencyjne" - zawiera szczegółowy podział Warszawy na dzielnice 
 
-plik_shp_mapa <- "./pliki_shp/Jednostki_ewidencyjne.shp"
+shp_gminy <- "./pliki_shp/Jednostki_ewidencyjne.shp"
 
-# plik_shp_mapa <- "./pliki_shp/Gminy.shp"
+shp_wojewodztwa <- "./pliki_shp/Województwa.shp"
+
 
 
 # mapa Polski według gmin  ------------------------------------------------
@@ -31,7 +32,7 @@ plik_shp_mapa <- "./pliki_shp/Jednostki_ewidencyjne.shp"
 # Należy poprawić Zieloną Górę (gminę miejską, nie miasto) oraz Łódź i Kraków - które są podzielone na 
 # dzielnice natomiast wyniki z PKW traktują to jako ten sam kod TERYT 
 
-mapa <- read_sf(plik_shp_mapa) %>%
+mapa_gminy <- read_sf(shp_gminy) %>%
   select(TERYT = JPT_KOD_JE, geometry, JPT_NAZWA_) %>%
   mutate(TERYT = str_sub(TERYT, 1, 6)) %>%  # skrócenie kodu teryt do 6 cyfr 
   mutate(TERYT = if_else(str_detect(TERYT, "080910"), "086201", TERYT),
@@ -44,6 +45,11 @@ mapa <- read_sf(plik_shp_mapa) %>%
          TERYT = if_else(str_detect(TERYT, "126103"), "126101", TERYT),
          TERYT = if_else(str_detect(TERYT, "126104"), "126101", TERYT),
          TERYT = if_else(str_detect(TERYT, "126105"), "126101", TERYT))
+
+mapa_woj <- read_sf(shp_wojewodztwa) %>% 
+  select(TERYT = JPT_KOD_JE, geometry, JPT_NAZWA_) %>% 
+  mutate(TERYT = str_sub(TERYT, 1, 6))
+
 
 
 # drobne zmiany w zbiorze danych - str_sub zmienia długość kodu TERYT na równą długość dla wszystkich 
@@ -73,7 +79,7 @@ frekwencja <- dane[, c(3, 13, 15)] %>%
 # frekwencja do poprawy - albo liczona razem z korespondencyjnym albo oddzielnie
 # (trzeba odjąć od głosów wyjętych)
 
-frekwencja_do_mapy <- left_join(mapa, 
+frekwencja_do_mapy <- left_join(mapa_gminy, 
                              frekwencja %>% 
                                select(TERYT, frekwencja_proc), 
                              by = "TERYT")
@@ -81,6 +87,7 @@ frekwencja_do_mapy <- left_join(mapa,
 
 frekwencja_mapa <- ggplot() +
   geom_sf(data = frekwencja_do_mapy, aes(fill = frekwencja_proc),  size = 0.08, color = "gray95") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   geom_sf_text(data = frekwencja_do_mapy %>% filter(frekwencja_proc == 0),
                aes(label = JPT_NAZWA_), colour = "black", size = 1.25, fontface = "bold", 
                position = position_nudge(y = -0.1)) +
@@ -133,12 +140,13 @@ glosy <- dane[, c(3, 25, 29, 33, 27)] %>%
          karty_niewazne_proc = (karty_niewazne / glosy_oddane)*100)
 
 # połączenie z tabelą ze współrzędnymi
-glosy_mapa <- left_join(mapa, glosy, by = "TERYT")
+glosy_mapa <- left_join(mapa_gminy, glosy, by = "TERYT")
 
 
 glosy_niewazne_mapa <- glosy_mapa %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_niewazne_proc),  size = 0.10, color = "gray95") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Reds", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -170,7 +178,7 @@ wyniki <- dane[, c(3, 33, 34:44)] %>%
   left_join(glosy %>% select(TERYT, glosy_wazne), by = "TERYT") %>% 
   mutate(glosy_na_kandydata_proc = (glosy_na_kandydata / glosy_wazne)*100)
 
-wyniki_mapa <- left_join(mapa, 
+wyniki_mapa <- left_join(mapa_gminy, 
                        wyniki %>% 
                          group_by(TERYT) %>% 
                          top_n(1, glosy_na_kandydata), 
@@ -180,6 +188,7 @@ wyniki_mapa <- left_join(mapa,
 mapa_zwyciezcy_gminy <- wyniki_mapa %>%
   ggplot() +
   geom_sf(aes(fill = kandydat), size = 0.1, color = "gray95") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_manual(values = c("dodgerblue3", "cyan3", "yellow1")) +
   theme_void() + 
   theme(legend.position = "bottom", legend.direction = "horizontal",
@@ -201,12 +210,13 @@ mapa_zwyciezcy_gminy <- wyniki_mapa %>%
 # poparcie ----------------------------------------------------------------
 
 
-poparcie <- left_join(mapa, wyniki, by = "TERYT")
+poparcie <- left_join(mapa_gminy, wyniki, by = "TERYT")
 
 # wszyscy kandydaci razem na jednym wykresie 
 mapa_poparcie_proc <- poparcie %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray90") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   facet_wrap(~kandydat) +
   theme_void() + 
@@ -251,6 +261,7 @@ mapa_poparcie_proc_top3 <- poparcie %>%
   filter(kandydat %in% top3) %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() + 
   theme(legend.position="bottom", legend.box = "horizontal",
@@ -274,6 +285,7 @@ mapa_poparcie_proc_last5 = poparcie %>%
   filter(kandydat %in% last5) %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() + 
   theme(legend.position="bottom", legend.box = "horizontal",
@@ -298,6 +310,7 @@ mapa_poparcie_proc_rt <- poparcie %>%
   filter(kandydat == "Rafał Kazimierz TRZASKOWSKI") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -321,6 +334,7 @@ mapa_poparcie_proc_ad = poparcie %>%
   filter(kandydat == "Andrzej Sebastian DUDA") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -343,6 +357,7 @@ mapa_poparcie_proc_sh = poparcie %>%
   filter(kandydat == "Szymon Franciszek HOŁOWNIA") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -365,6 +380,7 @@ mapa_poparcie_proc_kb = poparcie %>%
   filter(kandydat == "Krzysztof BOSAK") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -388,6 +404,7 @@ mapa_poparcie_proc_wkk = poparcie %>%
   filter(kandydat == "Władysław Marcin KOSINIAK-KAMYSZ") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -411,6 +428,7 @@ mapa_poparcie_proc_rb = poparcie %>%
   filter(kandydat == "Robert BIEDROŃ") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -434,6 +452,7 @@ mapa_poparcie_proc_sz = poparcie %>%
   filter(kandydat == "Stanisław Józef ŻÓŁTEK") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -457,6 +476,7 @@ mapa_poparcie_proc_mj = poparcie %>%
   filter(kandydat == "Marek JAKUBIAK") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -480,6 +500,7 @@ mapa_poparcie_proc_pt = poparcie %>%
   filter(kandydat == "Paweł Jan TANAJNO") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -503,6 +524,7 @@ mapa_poparcie_proc_ww = poparcie %>%
   filter(kandydat == "Waldemar Włodzimierz WITKOWSKI") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -526,6 +548,7 @@ mapa_poparcie_proc_mp = poparcie %>%
   filter(kandydat == "Mirosław Mariusz PIOTROWSKI") %>% 
   ggplot() +
   geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_distiller(palette = "Blues", direction = 1) +
   theme_void() +
   theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
@@ -542,5 +565,6 @@ mapa_poparcie_proc_mp = poparcie %>%
        fill = "Procent głosów")
 
 # ggsave(mapa_poparcie_proc_mp, file = "poparcie_proc_mp.png", width=6, height=6, dpi=300)
+
 
 
