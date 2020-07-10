@@ -586,8 +586,9 @@ mapa_poparcie_proc_ww
 mapa_poparcie_proc_mp
 ```
 
+---
 
-### Bonus - skład obwodowych komisji 
+### Dodatek - Czy w obwodowych komisjach więcej jest kobiet czy mężczyzn? 
 
 ```{r warning=FALSE, results='hide', message=FALSE}
 
@@ -614,12 +615,9 @@ obwody <-  obwody %>%
 # żaden z członków komisji nie ma więcej niż trzy imiona 
 ```
 
+#### Rozpoznawanie płci po imieniu
 
-### Dodatek - Czy w obwodowych komisjach więcej jest kobiet czy mężczyzn? 
-
-#### Funkcja rozpoznająca płeć po imieniu
-
-*Założenie:* Imiona żeńskie kończą się na literę "a" z niektórymi wyjątkami imion męskich tj. Bonawentura, Barnaba, Kosma, Dyzma, Juda. Pozostałe imiona to imiona męskie.  
+**Założenie:** *Imiona żeńskie kończą się na literę "a" z niektórymi wyjątkami imion męskich tj. Bonawentura, Barnaba, Kosma, Dyzma, Juda. Pozostałe imiona to imiona męskie.* 
 
 Płeć członków komisji osądzimy na podstawie pierwszego imienia danej osoby. 
 ```{r funkcja}
