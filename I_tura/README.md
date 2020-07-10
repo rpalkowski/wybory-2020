@@ -31,3 +31,8 @@
 <img src="wykresy/poparcie_proc_ww-1.png" style="display: block; margin: auto;" />
 
 <img src="wykresy/poparcie_proc_mp-1.png" style="display: block; margin: auto;" />
+
+------------------------------------------------------------------------
+### Dodatek - płeć przeważająca w komisjach 
+
+<img src="wykresy/plec_przewazajaca.png" style="display: block; margin: auto;" />
