@@ -62,7 +62,10 @@ obwody <-  obwody %>%
 # plik shp z mapą Polski z podziałem według gmin 
 # plik "jednostki_ewidencyjne" - zawiera szczegółowy podział Warszawy na dzielnice 
 
-plik_shp_mapa <- "./pliki_shp/Gminy.shp"
+shp_jednostki_ewid <- "./pliki_shp/Jednostki_ewidencyjne.shp"
+
+shp_wojewodztwa <- "./pliki_shp/Województwa.shp"
+
 
 # mapa Polski według gmin  ------------------------------------------------
 
@@ -72,7 +75,7 @@ plik_shp_mapa <- "./pliki_shp/Gminy.shp"
 # Należy poprawić Zieloną Górę (gminę miejską, nie miasto) oraz Łódź i Kraków - które są podzielone na 
 # dzielnice natomiast wyniki z PKW traktują to jako ten sam kod TERYT 
 
-mapa <- read_sf(plik_shp_mapa) %>%
+mapa_gminy <- read_sf(shp_jednostki_ewid) %>%
   select(TERYT = JPT_KOD_JE, geometry, JPT_NAZWA_) %>%
   mutate(TERYT = str_sub(TERYT, 1, 6)) %>%  # skrócenie kodu teryt do 6 cyfr 
   mutate(TERYT = if_else(str_detect(TERYT, "080910"), "086201", TERYT),
@@ -86,40 +89,14 @@ mapa <- read_sf(plik_shp_mapa) %>%
          TERYT = if_else(str_detect(TERYT, "126104"), "126101", TERYT),
          TERYT = if_else(str_detect(TERYT, "126105"), "126101", TERYT))
 
-# dobrna zmiana nazwy kolumny 
+mapa_woj <- read_sf(shp_wojewodztwa) %>% 
+  select(TERYT = JPT_KOD_JE, geometry, JPT_NAZWA_) %>% 
+  mutate(TERYT = str_sub(TERYT, 1, 6))
+
+
+# zmiana nazwy kolumny 
 obwody <- obwody %>% 
   rename(TERYT = "TERYT gminy")
-
-
-
-# przewodniczący komisji - kobieta czy mężczyzna? -------------------------
-
-
-obwody_mapa <- left_join(mapa, obwody %>% 
-                           select(TERYT, Funkcja, plec) %>% 
-                           filter(Funkcja == "Przewodniczący"), by = "TERYT")
-
-
-przewodniczacy_plec <- obwody_mapa %>%
-  ggplot() +
-  geom_sf(mapping = aes(fill = plec), size = 0.1, color = "gray95") + 
-  scale_fill_manual(values = c("orchid1", "royalblue3")) + 
-  theme_void() + 
-  theme(legend.position = "bottom", legend.direction = "horizontal",
-        legend.title = element_blank(),
-        legend.text = element_text(size = 8),
-        legend.key.size = unit(10, "points"),
-        plot.title = element_text(face = "bold", size = 11),
-        plot.subtitle = element_text(size = 9),
-        plot.caption = element_text(size = 7, colour = "grey30"), 
-        plot.margin = unit(c(5,5,5,5), "points")) +
-  labs(title = "Przewodniczący komisji - kobieta czy mężczyzna?",
-       subtitle = "I tura, 28.06.2020",
-       caption = "Radosław Pałkowski \n github.com/rpalkowski",
-       fill = "płeć")
-
-ggsave(przewodniczacy_plec, file = "przewodniczacy_plec.png", width=6, height=6, dpi=300)
-
 
 
 # płeć przeważająca w komisji/obwodach ---------------------------------------------
@@ -137,13 +114,14 @@ plec$plec_przewazajaca <- gsub("TRUE", "kobieta", plec$plec_przewazajaca)
 plec$plec_przewazajaca <- gsub("FALSE", "mężczyzna", plec$plec_przewazajaca)
 
 
-plec_mapa <- left_join(mapa, plec %>% 
+plec_mapa <- left_join(mapa_gminy, plec %>% 
                          select(TERYT, plec_przewazajaca), by = "TERYT")
 
 
 plec_przewazajaca <- plec_mapa %>%
   ggplot() +
-  geom_sf(mapping = aes(fill = plec_przewazajaca), size = 0.1, color = "gray95") + 
+  geom_sf(mapping = aes(fill = plec_przewazajaca), size = 0.1, color = "gray95") +
+  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
   scale_fill_manual(values = c("orchid1", "royalblue3")) + 
   theme_void() + 
   theme(legend.position = "bottom", legend.direction = "horizontal",
