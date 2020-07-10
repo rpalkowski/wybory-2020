@@ -50,9 +50,9 @@ Jak wygląda zbiór danych?
 
 #### Funkcja rozpoznająca płeć po imieniu
 
-*Założenie:* Imiona żeńskie kończą się na literę “a” z niektórymi
+**Założenie:** *Imiona żeńskie kończą się na literę “a” z niektórymi
 wyjątkami imion męskich tj. Bonawentura, Barnaba, Kosma, Dyzma, Juda.
-Pozostałe imiona to imiona męskie.
+Pozostałe imiona to imiona męskie.*
 
 Płeć członków komisji osądzimy na podstawie pierwszego imienia danej
 osoby.
