@@ -1,5 +1,5 @@
 
-# Pierwsza tura wyborów prezydenckich -------------------------------------
+# Druga tura wyborów prezydenckich -------------------------------------
 
 # źródło danych: https://wybory.gov.pl/prezydent20200628/pl/dane_w_arkuszach
 # źródło plików shp: https://gis-support.pl/granice-administracyjne/
