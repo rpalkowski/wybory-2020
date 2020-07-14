@@ -236,27 +236,6 @@ mapa_poparcie_proc <- poparcie %>%
 # ggsave(mapa_poparcie_proc, file = "poparcie_proc.png", width=30, height=15, dpi=300)
 
 
-# mapy dla last5
-mapa_poparcie_proc_last5 = poparcie %>% 
-  filter(kandydat %in% last5) %>% 
-  ggplot() +
-  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
-  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
-  scale_fill_distiller(palette = "Blues", direction = 1) +
-  theme_void() + 
-  theme(legend.position="bottom", legend.box = "horizontal",
-        legend.title = element_text(size = 9),
-        legend.text = element_text(size = 9),
-        plot.title = element_text(face = "bold", size = 15),
-        plot.caption = element_text(size = 7, colour = "grey30"), 
-        plot.margin = unit(c(0,5,0,5), "points")) +
-  labs(title = "Poparcie na poziomie gmin dla pięciu kandydatów z najmniejszą liczbą głosów ogółem",
-       subtitle = "I tura, 28.06.2020 \n",
-       caption = "Radosław Pałkowski \n github.com/rpalkowski",
-       fill = "Procent głosów") +
-  facet_wrap(~kandydat, ncol = 5)
-
-# ggsave(mapa_poparcie_proc_last5, file = "poparcie_proc_last5.png", width=30, height=10, dpi=300)
 
 
 
@@ -307,52 +286,6 @@ mapa_poparcie_proc_ad = poparcie %>%
        fill = "Procent głosów")
 
 # ggsave(mapa_poparcie_proc_ad, file = "poparcie_proc_ad.png", width=6, height=6, dpi=300)
-
-# poparcie dla Szymona Hołowni 
-mapa_poparcie_proc_sh = poparcie %>%
-  filter(kandydat == "Szymon Franciszek HOŁOWNIA") %>% 
-  ggplot() +
-  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
-  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
-  scale_fill_distiller(palette = "Blues", direction = 1) +
-  theme_void() +
-  theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
-        legend.title = element_text(size = 7),
-        legend.text = element_text(size = 6),
-        legend.key.size = unit(10, "points"),
-        plot.title = element_text(face = "bold", size = 11),
-        plot.subtitle = element_text(size = 9),
-        plot.caption = element_text(size = 7, colour = "grey30"), 
-        plot.margin = unit(c(5,5,5,5), "points")) +
-  labs(title = "Poparcie na poziomie gmin - Szymon Franciszek HOŁOWNIA",
-       subtitle = "I tura, 28.06.2020",
-       caption = "Radosław Pałkowski \n github.com/rpalkowski",
-       fill = "Procent głosów")
-
-# ggsave(mapa_poparcie_proc_sh, file = "poparcie_proc_sh.png", width=6, height=6, dpi=300)
-
-# poparcie dla Krzysztofa Bosaka
-mapa_poparcie_proc_kb = poparcie %>%
-  filter(kandydat == "Krzysztof BOSAK") %>% 
-  ggplot() +
-  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
-  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
-  scale_fill_distiller(palette = "Blues", direction = 1) +
-  theme_void() +
-  theme(legend.position = c(0.20, 0.10), legend.direction = "horizontal",
-        legend.title = element_text(size = 7),
-        legend.text = element_text(size = 6),
-        legend.key.size = unit(10, "points"),
-        plot.title = element_text(face = "bold", size = 11),
-        plot.subtitle = element_text(size = 9),
-        plot.caption = element_text(size = 7, colour = "grey30"), 
-        plot.margin = unit(c(5,5,5,5), "points")) +
-  labs(title = "Poparcie na poziomie gmin - Krzysztof BOSAK",
-       subtitle = "I tura, 28.06.2020",
-       caption = "Radosław Pałkowski \n github.com/rpalkowski",
-       fill = "Procent głosów")
-
-# ggsave(mapa_poparcie_proc_kb, file = "poparcie_proc_kb.png", width=6, height=6, dpi=300)
 
 
 
