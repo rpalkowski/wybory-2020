@@ -236,50 +236,6 @@ mapa_poparcie_proc <- poparcie %>%
 # ggsave(mapa_poparcie_proc, file = "poparcie_proc.png", width=30, height=15, dpi=300)
 
 
-
-# top3 kandydatów z największym poparciem 
-
-# głosy na kandydatów ogółem (bez zagranicy?)
-liczba_glosow_total <- wyniki %>% 
-  group_by(kandydat) %>% 
-  summarise(suma_glosow = sum(glosy_na_kandydata, na.rm = T)) %>% 
-  ungroup() %>% 
-  arrange(desc(suma_glosow))
-
-# top3 - pierwsza trójka 
-top3 <- liczba_glosow_total %>% 
-  top_n(3, suma_glosow) %>% 
-  .$kandydat
-
-# last5 - ostatnia piątka 
-last5 <- liczba_glosow_total %>% 
-  top_n(-5, suma_glosow) %>% 
-  .$kandydat
-  
-# mapy dla top3
-mapa_poparcie_proc_top3 <- poparcie %>% 
-  filter(kandydat %in% top3) %>% 
-  ggplot() +
-  geom_sf(mapping = aes(fill = glosy_na_kandydata_proc), size = 0.1, color = "gray100") +
-  geom_sf(data = mapa_woj, size = 0.2, color = "gray30", fill = NA) +
-  scale_fill_distiller(palette = "Blues", direction = 1) +
-  theme_void() + 
-  theme(legend.position="bottom", legend.box = "horizontal",
-        legend.title = element_text(size = 8),
-        legend.text = element_text(size = 7),
-        legend.key.size = unit(10, "points"),
-        plot.title = element_text(face = "bold", size = 15),
-        plot.caption = element_text(size = 7, colour = "grey30"), 
-        plot.margin = unit(c(0,5,0,5), "points")) +
-  labs(title = "Poparcie na poziomie gmin dla trzech kandydatów z największą liczbą głosów ogółem",
-       subtitle = "I tura, 28.06.2020 \n",
-       caption = "Radosław Pałkowski \n github.com/rpalkowski",
-       fill = "Procent głosów") +
-  facet_wrap(~kandydat)
-
-# ggsave(mapa_poparcie_proc_top3, file = "poparcie_proc_top3.png", width=12, height=6, dpi=300)
-
-
 # mapy dla last5
 mapa_poparcie_proc_last5 = poparcie %>% 
   filter(kandydat %in% last5) %>% 
