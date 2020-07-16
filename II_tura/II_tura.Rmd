@@ -1,18 +1,29 @@
+---
+title: "Wybory prezydenckie 2020 - II tura"
+author: "Radosław Pałkowski"
+date: "15 07 2020"
+output:
+  md_document:
+    variant: markdown_github
+  html_document: default
+---
 
-# Pierwsza tura wyborów prezydenckich -------------------------------------
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=6, fig.path='wykresy/',
+                      fig.align='center', dpi = 300, tidy=TRUE,
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
 
-# źródło danych: https://wybory.gov.pl/prezydent20200628/pl/dane_w_arkuszach
-# źródło plików shp: https://gis-support.pl/granice-administracyjne/
+---
 
-# załadowanie pakietów  ---------------------------------------------------
 
+```{r pakiety, warning=FALSE, results='hide', message=FALSE}
 library(tidyverse)
 library(sf)
 library(stringr)
+```
 
-
-# ładowanie danych  -------------------------------------------------------
-
+```{r dane, warning=FALSE, results='hide', message=FALSE}
 dane <- read_csv2("wyniki_gl_na_kand_po_gminach_utf8.csv")
 
 # plik shp z mapą Polski z podziałem według gmin 
@@ -22,7 +33,10 @@ shp_gminy <- "./pliki_shp/Jednostki_ewidencyjne.shp"
 
 shp_wojewodztwa <- "./pliki_shp/Województwa.shp"
 
+```
 
+
+```{r przygotowanie mapy i danych, warning=FALSE, results='hide', message=FALSE}
 
 # mapa Polski według gmin  ------------------------------------------------
 
@@ -46,10 +60,10 @@ mapa_gminy <- read_sf(shp_gminy) %>%
          TERYT = if_else(str_detect(TERYT, "126104"), "126101", TERYT),
          TERYT = if_else(str_detect(TERYT, "126105"), "126101", TERYT))
 
+
 mapa_woj <- read_sf(shp_wojewodztwa) %>% 
   select(TERYT = JPT_KOD_JE, geometry, JPT_NAZWA_) %>% 
   mutate(TERYT = str_sub(TERYT, 1, 6))
-
 
 
 # drobne zmiany w zbiorze danych - str_sub zmienia długość kodu TERYT na równą długość dla wszystkich 
@@ -59,12 +73,11 @@ dane <- dane %>%
   mutate(`Kod TERYT` = str_sub(`Kod TERYT`, 1, 6))
 
 
-# frekwencja w lokalach ---------------------------------------------------
-# wyborcy uprawnieni do głosowania / wydane karty do głosowania 
+```
 
 
-# nazwy i numery kolumn
-colnames(dane)
+
+```{r frekwencja, warning=FALSE, results='hide', message=FALSE}
 
 # wybór odpowiednich kolumn + zmiana nazw i obliczenie frekwencji 
 frekwencja <- dane[, c(2, 8, 10)] %>% 
@@ -106,25 +119,18 @@ frekwencja_mapa <- ggplot() +
        caption = "Radosław Pałkowski \n github.com/rpalkowski", 
        fill = "Frekwencja (%)")
 
+```
 
 
-# zapis pliku 
-ggsave(frekwencja_mapa, file = "frekwencja_II_tura.png", width=6, height=6, dpi=300)
+```{r frekwencja_mapa_II_tura}
+frekwencja_mapa
+```
 
 
-
-# # mapa z samymi nazwami jednostek teryt 
-# test <- ggplot(mapa) +
-#   geom_sf(data = mapa, size = 0.1, color = "gray90", fill = "white") + 
-#   geom_sf_text(aes(label = JPT_NAZWA_), colour = "black", size = 1)
-# 
-# # zapis pliku 
-# ggsave(test, file = "test.png", width=20, height=20, dpi=300)  
-
-
-
+```{r głosy ważne i nieważne, warning=FALSE, results='hide', message=FALSE}
 
 # głosy ważne i nieważne --------------------------------------------------
+
 
 
 glosy <- dane[, c(2, 20, 24, 28, 22)] %>% 
@@ -161,11 +167,14 @@ glosy_niewazne_mapa <- glosy_mapa %>%
        caption = "Radosław Pałkowski \n github.com/rpalkowski", 
        fill = "Głosy nieważne (%)")
   
+```
 
-# zapis pliku 
-ggsave(glosy_niewazne_mapa, file = "glosy_niewazne_proc_II_tura.png", width=6, height=6, dpi=300)
+```{r glosy_niewazne_II_tura}
+glosy_niewazne_mapa
+```
 
 
+```{r zwycięzcy według gmin, warning=FALSE, results='hide', message=FALSE}
 
 # zwycięzcy według gmin ---------------------------------------------------
 
@@ -203,14 +212,18 @@ mapa_zwyciezcy_gminy <- wyniki_mapa %>%
        subtitle = "II tura, 12.07.2020",
        caption = "Radosław Pałkowski \n github.com/rpalkowski",
        fill = "", color="")
-  
-ggsave(mapa_zwyciezcy_gminy, file = "zwyciezcy_gmin_II_tura.png", width=6, height=6, dpi=300)
+```
 
+```{r zwyciezcy_gminy_II_tura}
+mapa_zwyciezcy_gminy
+```
 
-# poparcie ----------------------------------------------------------------
-
-
+```{r poparcie, warning=FALSE, results='hide', message=FALSE}
 poparcie <- left_join(mapa_gminy, wyniki, by = "TERYT")
+```
+
+
+```{r poparcie_ad_rt_razem, warning=FALSE, results='hide', message=FALSE}
 
 # dwójka kandydatów razem na jednym wykresie 
 mapa_poparcie_proc <- poparcie %>% 
@@ -232,10 +245,16 @@ mapa_poparcie_proc <- poparcie %>%
        subtitle = " ", 
        caption = "Radosław Pałkowski \n github.com/rpalkowski",
        fill = "Głosy (%)")
-  
-ggsave(mapa_poparcie_proc, file = "poparcie_proc_II_tura.png", width=12, height=6, dpi=300)
+
+```
+
+```{r poparcie_proc_II_tura, fig.width=12, fig.height=6}
+mapa_poparcie_proc
+```
 
 
+
+```{r warning=FALSE, results='hide', message=FALSE}
 
 # poparcie dla Rafała Trzaskowskiego 
 mapa_poparcie_proc_rt <- poparcie %>%
@@ -257,9 +276,14 @@ mapa_poparcie_proc_rt <- poparcie %>%
        subtitle = "II tura, 12.07.2020",
        caption = "Radosław Pałkowski \n github.com/rpalkowski",
        fill = "Procent głosów")
+```
 
-ggsave(mapa_poparcie_proc_rt, file = "poparcie_proc_rt_II_tura.png", width=6, height=6, dpi=300)
+```{r poparcie_proc_rt_II_tura}
+mapa_poparcie_proc_rt
+```
 
+
+```{r warning=FALSE, results='hide', message=FALSE}
 
 # poparcie dla Andrzeja Dudy 
 mapa_poparcie_proc_ad = poparcie %>%
@@ -281,15 +305,9 @@ mapa_poparcie_proc_ad = poparcie %>%
        subtitle = "II tura, 12.07.2020",
        caption = "Radosław Pałkowski \n github.com/rpalkowski",
        fill = "Procent głosów")
-
-ggsave(mapa_poparcie_proc_ad, file = "poparcie_proc_ad_II_tura.png", width=6, height=6, dpi=300)
-
+```
 
 
-
-# głosy na kandydatów ogółem
-liczba_glosow_total <- wyniki %>% 
-  group_by(kandydat) %>% 
-  summarise(suma_glosow = sum(glosy_na_kandydata, na.rm = T)) %>% 
-  ungroup() %>% 
-  arrange(desc(suma_glosow))
+```{r poparcie_proc_ad_II_tura}
+mapa_poparcie_proc_ad
+```
